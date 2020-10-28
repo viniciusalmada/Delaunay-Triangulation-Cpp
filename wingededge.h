@@ -36,6 +36,14 @@ namespace WED {
         LEFT, RIGHT, COLLINEAR
     };
 
+    static Orientation orientation(Point a, Point b, Point c);
+
+    static bool pointInsideTriangle(Face* face, Point pt);
+
+    static std::array<Vertex*, 3> getFaceVertices(Face* pFace);
+
+    static bool linesCrossing(WED::Point point, WED::Point point1, WED::Point point2, WED::Point point3);
+
     class WingedEdge {
     private:
         std::vector<Face*> mFaces;
@@ -47,12 +55,6 @@ namespace WED {
         bool addTriangles(Point pt);
 
         Face* faceThatContains(Point pt);
-
-        static Orientation orientationPointToEdge(Edge* edge, Point pt);
-
-        static bool pointInsideTriangle(Face* face, Point pt);
-
-        static std::array<Vertex*, 3> getFaceVertices(Face* pFace);
     };
 }
 

@@ -1,4 +1,50 @@
 #include "wingededge.h"
+#include "cfloat"
+
+WED::Orientation WED::orientation(WED::Point a, WED::Point b, WED::Point c) {
+    double det = (a.x * b.y + b.x * c.y + c.x * a.y) - (a.x * c.y + b.x * a.y + c.x * b.y);
+
+    if (det > 0.0)
+        return WED::Orientation::LEFT;
+    else if (det < 0.0)
+        return WED::Orientation::RIGHT;
+    else
+        return WED::Orientation::COLLINEAR;
+}
+
+std::array<WED::Vertex*, 3> WED::getFaceVertices(WED::Face* face) {
+    Vertex* v0 = face->edge0->vtxInit;
+    Vertex* v1 = face->edge0->vtxEnd;
+    Vertex* v2;
+    if (face->edge1->vtxInit == v0)
+        v2 = face->edge1->vtxEnd;
+    else
+        v2 = face->edge1->vtxInit;
+
+    return std::array<WED::Vertex*, 3>{v0, v1, v2};
+}
+
+bool WED::pointInsideTriangle(WED::Face* face, WED::Point pt) {
+
+    WED::Point ptInf = WED::Point{pt.x, DBL_MAX};
+    std::array<WED::Vertex*, 3> vtxPoints = WED::getFaceVertices(face);
+
+    bool ab = linesCrossing(vtxPoints[0]->point, vtxPoints[1]->point, pt, ptInf);
+    bool bc = linesCrossing(vtxPoints[1]->point, vtxPoints[2]->point, pt, ptInf);
+    bool ca = linesCrossing(vtxPoints[2]->point, vtxPoints[0]->point, pt, ptInf);
+
+    int count = 0;
+    if (ab) count++;
+    if (bc) count++;
+    if (ca) count++;
+
+    return count % 2 != 0;
+}
+
+bool WED::linesCrossing(WED::Point a, WED::Point b, WED::Point c, WED::Point d) {
+    return WED::orientation(a, b, c) != WED::orientation(a, b, d) &&
+           WED::orientation(c, d, a) != WED::orientation(c, d, b);
+}
 
 WED::WingedEdge::WingedEdge(std::array<Point, 3> pts) {
     Vertex* v0 = new Vertex{};
@@ -74,7 +120,7 @@ bool WED::WingedEdge::addTriangles(Point pt) {
 
     Face* newFace0 = new Face{};
     newFace0->edge0 = edge0;
-    newFace0
+//    newFace0
 
     /*std::array<Vertex*, 3> vertices = getFaceVertices(faceToRemove);
     newEdge0->vtxEnd = vertices[0];
@@ -86,51 +132,14 @@ bool WED::WingedEdge::addTriangles(Point pt) {
     Face* f2 = new Face{};
 
     f0->edge1 =*/
+    return false;
 }
 
 WED::Face* WED::WingedEdge::faceThatContains(Point pt) {
     for (Face* f : mFaces) {
-        Edge* edge0 = f->edge0;
-        Edge* edge1 = f->edge1;
-        Edge* edge2 = f->edge2;
-
-        if (orientationPointToEdge(edge0, pt) == Orientation::LEFT &&
-            orientationPointToEdge(edge1, pt) == Orientation::LEFT &&
-            orientationPointToEdge(edge2, pt) == Orientation::LEFT)
+        if (WED::pointInsideTriangle(f, pt))
             return f;
     }
     return nullptr;
-}
-
-WED::Orientation WED::WingedEdge::orientationPointToEdge(WED::Edge* edge, WED::Point c) {
-    Point a = edge->vtxInit->point;
-    Point b = edge->vtxEnd->point;
-    double det = (a.x * b.y + b.x * c.y + c.x * a.y) - (a.x * c.y + b.x * a.y + c.x * b.y);
-
-    if (det > 0.0)
-        return WED::Orientation::LEFT;
-    else if (det < 0.0)
-        return WED::Orientation::RIGHT;
-    else
-        return WED::Orientation::COLLINEAR;
-}
-
-std::array<WED::Vertex*, 3> WED::WingedEdge::getFaceVertices(WED::Face* face) {
-    Vertex* v0 = face->edge0->vtxInit;
-    Vertex* v1 = face->edge0->vtxEnd;
-    Vertex* v2;
-    if (face->edge1->vtxInit == v0)
-        v2 = face->edge1->vtxEnd;
-    else
-        v2 = face->edge1->vtxInit;
-
-    return std::array<WED::Vertex*, 3>{v0, v1, v2};
-}
-
-bool WED::WingedEdge::pointInsideTriangle(WED::Face* face, Point pt) {
-
-
-
-    return false;
 }
 
