@@ -75,9 +75,13 @@ WED::WingedEdge::WingedEdge(std::array<Point, 3> pts) {
     face->edge1 = edge1;
     face->edge2 = edge2;
 
-//    edge0->faceLeft = face;
-//    edge1->faceLeft = face;
-//    edge2->faceLeft = face;
+    edge0->faceLeft = face;
+    edge1->faceLeft = face;
+    edge2->faceLeft = face;
+
+    edge0->faceRight = nullptr;
+    edge1->faceRight = nullptr;
+    edge2->faceRight = nullptr;
 
     this->mFaces.push_back(face);
 }
@@ -117,21 +121,39 @@ bool WED::WingedEdge::addTriangles(Point pt) {
     newEdge2->vtxInit = newVtx;
 
     Edge* edge0 = faceToRemove->edge0;
+    Edge* edge1 = faceToRemove->edge1;
+    Edge* edge2 = faceToRemove->edge2;
+
+    newEdge0->vtxEnd = edge0->vtxInit;
+    newEdge1->vtxEnd = edge0->vtxEnd;
+
+    if (edge1->vtxInit == edge0->vtxInit)
+        newEdge2->vtxEnd = edge1->vtxEnd;
+    else if (edge1->vtxInit == edge0->vtxEnd)
+        newEdge2->vtxEnd = edge1->vtxInit;
+    else
+        newEdge2->vtxEnd = edge1->vtxInit;
 
     Face* newFace0 = new Face{};
     newFace0->edge0 = edge0;
-//    newFace0
+    newFace0->edge1 = newEdge0;
+    newFace0->edge2 = newEdge1;
 
-    /*std::array<Vertex*, 3> vertices = getFaceVertices(faceToRemove);
-    newEdge0->vtxEnd = vertices[0];
-    newEdge1->vtxEnd = vertices[1];
-    newEdge2->vtxEnd = vertices[2];
+    Face* newFace1 = new Face{};
+    newFace1->edge0 = edge1;
+    newFace1->edge1 = newEdge1;
+    newFace1->edge2 = newEdge2;
 
-    Face* f0 = new Face{};
-    Face* f1 = new Face{};
-    Face* f2 = new Face{};
+    Face* newFace2 = new Face{};
+    newFace2->edge0 = edge2;
+    newFace2->edge1 = newEdge2;
+    newFace2->edge2 = newEdge0;
 
-    f0->edge1 =*/
+    newEdge0->faceRight = newFace1;
+    newEdge0->faceLeft = newFace0;
+
+    newEdge1->faceRight = newFace2;
+    newEdge1->faceLeft = newFace0;
     return false;
 }
 

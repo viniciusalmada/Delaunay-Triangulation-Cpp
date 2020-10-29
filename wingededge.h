@@ -22,8 +22,8 @@ namespace WED {
     struct Edge {
         Vertex* vtxInit;
         Vertex* vtxEnd;
-//        Face* faceLeft;
-//        Face* faceRight;
+        Face* faceLeft;
+        Face* faceRight;
     };
 
     struct Face {
